@@ -1,2 +1,2 @@
 # Machine Learning Algorithms
-Supervised, unsupervised, deep learning algorithms, applied on the email dataset.
+Supervised, unsupervised, deep learning algorithms.
