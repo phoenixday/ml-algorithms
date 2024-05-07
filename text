@@ -1,0 +1,948 @@
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% I, the copyright holder of this work, release this work into the
+%% public domain. This applies worldwide. In some countries this may
+%% not be legally possible; if so: I grant anyone the right to use
+%% this work for any purpose, without any conditions, unless such
+%% conditions are required by law.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[
+  digital, %% The `digital` option enables the default options for the
+           %% digital version of a document. Replace with `printed`
+           %% to enable the default options for the printed version
+           %% of a document.
+%%  color,   %% Uncomment these lines (by removing the %% at the
+%%           %% beginning) to use color in the printed version of your
+%%           %% document
+  oneside, %% The `oneside` option enables one-sided typesetting,
+           %% which is preferred if you are only going to submit a
+           %% digital version of your thesis. Replace with `twoside`
+           %% for double-sided typesetting if you are planning to
+           %% also print your thesis. For double-sided typesetting,
+           %% use at least 120 g/m² paper to prevent show-through.
+  lof,     %% The `lof` option prints the List of Figures. Replace
+           %% with `nolof` to hide the List of Figures.
+  lot,     %% The `lot` option prints the List of Tables. Replace
+           %% with `nolot` to hide the List of Tables.
+  article
+]{fithesis4}
+%% The following section sets up the locales used in the thesis.
+\usepackage[resetfonts]{cmap} %% We need to load the T2A font encoding
+\usepackage[T1,T2A]{fontenc}  %% to use the Cyrillic fonts with Russian texts.
+\usepackage[
+  main=english, %% By using `czech` or `slovak` as the main locale
+                %% instead of `english`, you can typeset the thesis
+                %% in either Czech or Slovak, respectively.
+  english, german, russian, czech, slovak %% The additional keys allow
+]{babel}        %% foreign texts to be typeset as follows:
+%%
+%%   \begin{otherlanguage}{german}  ... \end{otherlanguage}
+%%   \begin{otherlanguage}{russian} ... \end{otherlanguage}
+%%   \begin{otherlanguage}{czech}   ... \end{otherlanguage}
+%%   \begin{otherlanguage}{slovak}  ... \end{otherlanguage}
+%%
+%% For non-Latin scripts, it may be necessary to load additional
+%% fonts:
+\usepackage{paratype}
+\def\textrussian#1{{\usefont{T2A}{PTSerif-TLF}{m}{rm}#1}}
+%%
+%% The following section sets up the metadata of the thesis.
+\thesissetup{
+    date        = \the\year/\the\month/\the\day,
+    university  = mu,
+    faculty     = fi,
+    type        = mgr,
+    department  = Department of Computer Systems and Communications,
+    author      = Alina Tsykynovska,
+    gender      = f,
+    advisor     = {doc. Ing. RNDr. Barbora Bühnová, Ph.D.},
+    title       = {Machine Learning for Text Anomaly Detection},
+    TeXtitle    = {Machine Learning for Text Anomaly Detection},
+    keywords    = {machine learning, supervised learning, unsupervised learning, anomaly detection, deep learning, RNN, NLP},
+    TeXkeywords = {machine learning, supervised learning, unsupervised learning, anomaly detection, deep learning, RNN, NLP},
+    abstract    = {%
+      This is the abstract of my thesis, which can
+
+      span multiple paragraphs.
+    },
+    thanks      = {%
+      These are the acknowledgements for my thesis, which can
+
+      span multiple paragraphs.
+    },
+    bib         = example.bib,
+    %% Remove the following line to use the JVS 2018 faculty logo.
+    facultyLogo = fithesis-fi,
+}
+\usepackage{makeidx}      %% The `makeidx` package contains
+\makeindex                %% helper commands for index typesetting.
+\usepackage[acronym]{glossaries}          %% The `glossaries` package
+\renewcommand*\glspostdescription{\hfill} %% contains helper commands
+\loadglsentries{example-terms-abbrs.tex}  %% for typesetting glossaries
+\makenoidxglossaries                      %% and lists of abbreviations.
+%% These additional packages are used within the document:
+\usepackage{paralist} %% Compact list environments
+\usepackage{amsmath}  %% Mathematics
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{url}      %% Hyperlinks
+\usepackage{markdown} %% Lightweight markup
+\usepackage{listings} %% Source code highlighting
+\usepackage{spverbatim}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+
+\lstset{
+    basicstyle      = \ttfamily\small,
+    identifierstyle = \color{black},
+    keywordstyle    = \color{blue},
+    keywordstyle    = {[2]\color{cyan}},
+    keywordstyle    = {[3]\color{olive}},
+    stringstyle     = \color{teal},
+    commentstyle    = \itshape\color{magenta},
+    backgroundcolor = \color{olive!5},
+    breaklines      = true,
+    captionpos      = b,
+    keepspaces      = true,
+    numbers         = left,
+    numbersep       = 5pt,
+    showspaces      = false,
+    showstringspaces= false,
+    showtabs        = false,
+    framesep        = 10pt,
+    language        = Python
+}
+
+\usepackage{floatrow}
+ %% Putting captions above tables
+\floatsetup[table]{capposition=top}
+\usepackage[babel]{csquotes} %% Context-sensitive quotation marks
+\thesisload
+\usepackage{xurl}
+\emergencystretch=1em
+\begin{document}
+%% Uncomment the following lines (by removing the %% at the beginning)
+%% and to print out List of Abbreviations and/or Glossary in your
+%% document. Titles for these tables can be changed by replacing the
+%% titles `Abbreviations` and `Glossary`, respectively.
+%% \clearpage
+%% \printnoidxglossary[title={Abbreviations}, type=\acronymtype]
+%% \printnoidxglossary[title={Glossary}]
+\shorthandoff{-}
+\begin{markdown*}{%
+  hybrid,
+  definitionLists,
+  footnotes,
+  inlineFootnotes,
+  hashEnumerators,
+  fencedCode,
+  citations,
+  citationNbsps,
+  pipeTables,
+  tableCaptions,
+}
+%% The \chapter* command can be used to produce unnumbered chapters:
+\chapter*{Introduction}
+%% Unlike \chapter, \chapter* does not update the headings and does not
+%% enter the chapter to the table of contents. If we want correct
+%% headings and a table of contents entry, we must add them manually:
+\markright{\textsc{Introduction}}
+\addcontentsline{toc}{chapter}{Introduction}
+
+\chapter{Theoretical background}
+\section{Anomaly detection}
+(todo) definition
+(find origin) An anomaly (outlier, abnormality) is "an observation which deviates so much from other observations as to arouse suspicions that it was generated by a different mechanism" - Hawkins 1980.
+
+(find origin) Outlier detection is also known as unsupervised anomaly detection, and novelty detection is called semi-supervised anomaly detection.
+
+(todo) write about univariate and multivariate outliers
+
+(todo) write the difference between novelty vs. outlier detection
+
+\subsection{Imbalanced dataset}
+(todo) reread
+For the algorithms, the ideal dataset is relatively big and balanced. However, there are various cases of real-world datasets in the context of anomalies, for example:
+\begin{itemize}
+    \item The portion of anomalies is small compared to normal data. 
+    \item There are no anomalies in the training dataset.
+    \item The exact number of anomalies is unknown, or only part of the dataset is labeled.
+\end{itemize}
+
+Two techniques exist for balancing datasets: oversampling and undersampling. Oversampling duplicates the random points from smaller classes; undersampling deletes the points from bigger classes. Sometimes, these techniques can be used together to improve the feature representation.
+
+\subsection{Metrics}
+\label{section:metrics}
+(todo) write why precision and recall are important for anomaly detection
+
+(todo) describe when the precision can be more critical when recall
+
+(todo) describe F1-score
+
+\section{Supervised machine learning}
+\subsection{Gaussian Naive Bayes}
+Naive Bayes methods are a family of supervised machine learning methods for classification tasks. They make a "naive" assumption that each pair of features is independent. These algorithms implement the Bayes' theorem, which can be stated as: 
+\begin{equation}
+P(y|x\_1,...,x\_n) = \frac{P(y)P(y|x\_1,...,x\_n|y)}{P(y|x\_1,...,x\_n)}
+\end{equation}
+where $ y $ is a target class, and $ (x\_1,...,x\_n) $ is a vector of features.
+
+One of the Naive Bayes algorithms is a Gaussian Naive Bayes, which assumes that the features of each class have the Gaussian distribution. For each feature, the algorithm calculates the mean and variance for the class and gives the probability of belonging to each class based on how close the feature is to these metrics.
+
+Multinomial Naive Bayes assumes that features represent the frequency counts. It uses a multinomial distribution for the probabilities of observing counts among classes. It is commonly used for text classification, where the features are the counts of words.
+
+Other algorithms of this family are complement Naive Bayes, Bernoulli Naive Bayes and categorical Naive Bayes.
+\subsection{Logistic regression}
+(todo)
+\subsection{\textit{k}-nearest neighbors}
+\textit{k}-nearest neighbors algorithm is a member of the nearest neighbors algorithms family. Unlike many supervised learning algorithms that generate a model from the training data, \textit{k}-nearest neighbors algorithms store the training dataset.
+
+A new data point's classification is determined by the majority class among its \textit{k} nearest neighbors. Various metrics can be used to compute the distance between points; one of the most commonly used is Euclidian distance. To select the best \textit{k}, one needs to use hyperparameter optimization or other heuristic techniques. 
+
+\textit{k}-nearest neighbors algorithm may be inefficient with large datasets since the algorithm calculates the distance from the point to each other point, which is computationally expensive. Calculation for high dimensional data can also be expensive, and dimensionality reduction techniques are used in practice. 
+\subsection{Linear support vector}
+The linear support vector classifier belongs to a family of support vector machines used for classification and regression problems. Support vector machines assume that geometric boundaries, such as lines of hyperplanes in higher-dimensional spaces, can separate points of different classes. The support vectors are the points situated on the boundaries of the classes. An algorithm seeks to maximize the margin, the distance between the support vectors and the separating line or a hyperplane.
+
+The separating mechanism is called a kernel. A kernel can be linear, meaning a line separates the data. A linear support vector machine uses this kernel. 
+
+Other kernels, for example, RBF or polynomial, use the so-called "kernel trick." This mechanism transforms the data into a higher dimensional space, where a straight line or hyperplane can easily separate it.
+
+The linear kernel is computationally optimal and fast; however, RBF and polynomial kernel can capture more complex patterns. Moreover, using a kernel too complex for a problem can cause overfitting.
+\subsection{Decision tree}
+Decision tree is a non-parametric supervised learning algorithm that can be used for classification and regression tasks. An algorithm can be depicted as a "tree" structure, where leaves denote the class labels or the probability distribution over classes, nodes represent the input features, and branches determine the values or range of values a feature can hold.
+
+The decision at each internal node is determined by selecting the feature and the threshold that produce the most effective split, according to a predefined metric. Standard metrics include Gini impurity or Shannon information gain. The objective is to separate data so that outcome values are as similar as possible within each leave.
+
+The deeper the tree, the more complicated patterns it can capture. However, too deep construction is prone to overfitting. Overfitting occurs when the model learns the details and noise in the training data and does not generalize well.
+
+One of the advantages of decision trees is that they are easy to interpret and visualize. Also, they can handle both numerical and categorical data and do not require normalization. 
+\subsection{Random forest}
+Random forest is an ensemble learning algorithm that can also be adjusted for classification and regression tasks. Ensemble methods use several algorithms and then combine their results. In the case of random forest, the algorithm uses a collection, or a "forest," of decision trees.
+
+Initially, the algorithm uses bootstrapping, creating multiple subsets of the original data with replacement. After that, a decision tree is constructed based on its subset. Furthermore, each tree is trained using a random subset of features. The final prediction is made by majority voting on the predictions of all trees for the classification tasks or averaging for the regression tasks. 
+
+Thanks to the results aggregation, random forest is less prone to overfitting and generally provides better accuracy than the decision tree algorithm. However, it requires more computational resources and time to build multiple trees. At the same time, it can be faster to use several decision trees than one with a deep structure; the prediction time can be parallelized, and typically, the trees in a random forest are simpler.
+\subsection{Voting classifier}
+A voting classifier is an ensemble method that is applied to classification tasks. It aggregates the predictions of multiple algorithms and then combines their results by voting. 
+
+The voting process can be divided into two categories: hard and soft voting. Hard voting uses the majority of votes. In contrast, when algorithms return the probability of each class, soft voting is used. The voting algorithm then calculates an average probability for each class and selects the class with the highest probability.
+
+The voting method is useful when chosen algorithms are quite different from each other so that an overall prediction can be done considering the strengths of each algorithm.
+\section{Unsupervised machine learning}
+(todo) classify the algorithms
+(todo) write about the anomaly score
+\subsection{One-class SVM}
+(todo)
+\subsection{Local outlier factor}
+Local outlier factor algorithm uses the same concept as \textit{k}-nearest neighbors, DBSCAN and OPTICS algorithms: its computation is also based on \textit{k}-nearest neighbors. It computes the local density of the points, and the points with a significantly lower density than their neighbors are considered outliers.
+
+An algorithm uses a number of \textit{k}-nearest neighbors as a parameter. At the start, for each point, the local reachability density $lrd_k(A)$ is computed:
+
+\begin{equation}
+    lrd\substack{k}(A) = 1/(\frac{\sum_{{B \in N\substack{k}(A)}}d\substack{k}(A, B)}{|N\substack{k}(A)|}) 
+\end{equation}
+where (todo)
+
+\subsection{Isolation forest}
+Isolation forest is an ensemble learning algorithm. Like random forest, it also uses several decision trees and averages their results.
+
+Each tree randomly selects a feature and a threshold value and partitions the dataset into two parts using the value based on whether the point falls above or below the threshold value; as a result, the tree can be seen as a binary tree. This process is done recursively until each data point is isolated in its leaf node. Then, the average number of splits is calculated. Typically, an anomaly lies very far from the normal data and becomes isolated at the start of the computation, so its number of splits is smaller than on average. 
+
+Formally, the number of splits, or path length, is denoted as $ h(x) $, and $ E[h(x)] $ is the average path length to the instance $ x $ among all trees. The anomaly score is calculated as follows:
+\begin{equation}
+s(x,n) = 2^{-\frac{E(h(x))}{c(n)}}
+\end{equation}
+where $ n $ is an overall number of points, and $ c(n) $ is a normalization constant. The normalization constant $ c(n) $ helps compare the datasets of varying sizes because the overall number of points grows linearly to the size. However, the average path grows in a logarithmic time. The final score falls into the range $ [0, 1] $, and generally, a score less than 0.5 indicates a normal point, and approaching 1 is an anomaly.
+
+Unlike anomaly algorithms like one-class SVM and local outlier factor, isolation forest requires less memory and computation time. 
+\subsection{Gaussian mixture}
+(todo)
+\subsection{DBSCAN}
+The Density-Based Spatial Clustering of Applications with Noise (DBSCAN) algorithm~[@ester1996density] is another clustering algorithm. In DBSCAN, two hyperparameters must be specified: the epsilon($\varepsilon$) and the minimum points(MinPts). The $\varepsilon$ defines the radius around a particular point; any points within that radius can be considered cluster members. MinPts determines the minimum number of points that should be present in the $\varepsilon$ radius to form a cluster.
+
+The DBSCAN algorithm iteratively selects a point, assigns its nearest points to the same cluster, and repeats the operation for each point.
+
+The NearestNeighbors technique and the elbow method can be used to determine the value of $\varepsilon$. For MinPts, a common rule of thumb is to use a number greater than or equal to the dimensionality of the data $D$. Four is often used for two-dimensional datasets, and $2*D$ is recommended for higher dimensions.
+
+Compared to \textit{k}-means, the outliers do not affect DBSCAN. Also, DBSCAN can model various shapes, not only spherical. Among the disadvantages is that DBSCAN will not determine the clusters correctly if the clusters have different densities. The OPTICS algorithm can be used to address this issue. There is also a combination of these two algorithms called HDBSCAN.
+
+Like \textit{k}-means, DBSCAN can also be applied to text data transformed into feature vectors.
+\subsection{\textit{k}-means}
+The core idea of the \textit{k}-means algorithm~[@hastie2009elements] is to iteratively adjust the centers of the clusters until the distance between each point and its nearest cluster center is minimized. 
+
+There are two implementations of this algorithm in the scikit-learn library: KMeans^[more on 
+\url{https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html}] and MiniBatchKMeans^[more on \url{https://scikit-learn.org/stable/modules/generated/sklearn.cluster.MiniBatchKMeans.html#sklearn.cluster.MiniBatchKMeans}]. The latter is faster on large datasets when the number of points exceeds 10,000, because MiniBatchKMeans uses smaller batches of data in the computation, while \textit{k}-means uses the entire dataset. 
+
+The most crucial hyperparameter of \textit{k}-means is the number of clusters, often denoted as $k$, which can be determined using the elbow method. Both implementations have an "inertia" attribute, quantifying the average distance of points to their cluster centers. The "elbow" point, where the inertia value stops improving, might be the best choice for the number of clusters.
+
+One of the disadvantages of the \textit{k}-means algorithm is that it is sensitive to outliers. If there is an outlier, the cluster center can be shifted toward that outlier, which can change other centers' positions. Another disadvantage is that \textit{k}-means assumes spherical clusters and does not model other shapes well.
+
+\textit{k}-means can be applied to text data transformed into vectors using techniques such as Bag-Of-Words, TF-IDF or word embedding (as mentioned above). Alternatively, using features from topic modeling algorithms (as mentioned above) in place of vectors can be helpful. 
+\subsection{Agglomerative clustering}
+\textit{k}-means, DBSCAN, and Gaussian mixture model can be seen as flat clustering methods. Agglomerative clustering~[@hastie2009elements] is a hierarchical bottom-up approach.
+
+Initially, all points are treated as their clusters. The algorithm then iteratively combines the nearest clusters into the same cluster. The process continues until all points are merged into a single cluster. 
+
+Four linkage criteria are used to measure the distance between clusters: single, complete, average and centroid linkages. 
+
+The output of agglomerative clustering is a dendrogram. In the dendrogram, the vertical lines indicate the dissimilarity between clusters. The more different features clusters have, the more likely they are identified as distinguished clusters. That is why the most extended vertical lines should determine the number. 
+Among the drawbacks is that this clustering has higher computational complexity and is better suited for smaller datasets.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{images/dendrogram.png}
+  \caption{Example dendrogram resulting from agglomerative clustering. Three clusters may be most appropriate for clustering since the vertical lines are much longer.}
+  \label{graph}
+\end{figure}
+\subsection{Latent Dirichlet Allocation}
+The Latent Dirichlet Allocation (LDA) can be categorized as an unsupervised learning algorithm~[@murphy2012machine], although more often, it is employed for topic modeling. The main principle behind LDA is that it estimates the distribution of topics over all documents and the distribution of words within each topic.
+
+There are two implementations of LDA: in scikit-learn and Gensim libraries. In both implementations, the crucial hyperparameter to specify is the number of topics $ t $ and other parameters specific to each library. The optimal $ t $ can be found by the elbow method; the most appropriate $ t $ is where the perplexity is at its lowest and does not improve with increasing $ t $.
+
+Compared to \textit{k}-means and DBSCAN, LDA has a higher computational complexity. However, it can be more useful for text analysis since it categorizes the documents into clusters and specifies the topics within each document.
+\section{Deep learning}
+(todo) define what is loss function
+\subsection{Autoencoder}
+https://www.tensorflow.org/tutorials/generative/autoencoder
+
+Autoencoders, or AE, are a type of unsupervised neural network. They are commonly used for data compression, noise reduction, and anomaly detection.
+
+Autoencoders consist of two main parts: an encoder and a decoder. The encoder compresses the input data into a lower-dimensional representation while the decoder attempts to reconstruct the original data from this compressed representation. This representation is called a latent feature vector and can be seen as a list of parameters for each feature that an encoder has distinguished. The primary goal of autoencoders is to minimize reconstruction errors, which are the differences between the original and reconstructed data. 
+
+For anomaly detection, autoencoders are trained on normal or data with a small number of anomalies. Normal data get a low reconstruction error in the reconstruction process, whereas a higher reconstruction error detects anomalies.
+\subsection{Variational Autoencoder}
+https://towardsdatascience.com/hands-on-anomaly-detection-with-variational-autoencoders-d4044672acd5
+
+Variational Autoencoders, or VAE, are a type of autoencoder. VAEs have a similar architecture, but instead of creating a latent feature vector in an encoding phase, they produce two vectors. These vectors represent the mean and variance of a distribution from which a latent vector can be sampled. These vectors help to look at data like on a probability distribution, introducing variability and allowing one to generate new data points that may not be present in a dataset but come from the same distribution.
+
+The loss function of VAE consists of two parts. The first part is a reconstruction error similar to the common autoencoder. The second part, the KL loss component, tries to adjust the vectors an encoder generates to a normal distribution.
+
+As a result, a latent space, or all vectors generated by an encoder, tends to come from a more structured, normal distribution. It may not offer more significant benefits than standard AE, but it can lead to more predictable and consistent results, which is advantageous for anomaly detection.
+
+\section{Preprocessing}
+\subsection{Scaling}
+\subsection{PCA}
+\label{section:pca}
+(todo) write that PCA can help but may not always
+\subsection{Text preprocessing}
+(todo) write about stopwords
+\subsubsection{Tokenization and lemmatization}
+\subsubsection{Feature extraction}
+(todo) write about count vectorizes and TF-IDF vectorizer
+(todo) write about parameters, 2-grams and 3-grams
+(todo) write that no scaling is needed after
+\subsubsection{Word embeddings}
+
+\chapter{Implementation}
+\label{chapter:impl}
+
+(todo) reread, change the fact that splitting is done for five percent anomalies in the test set
+
+(todo) write about cross-validation
+
+In chapters \ref{chapter:netlogs} and \ref{chapter:emails}, supervised and unsupervised anomaly detection algorithms are applied on two distinct datasets, which are already balanced. The first dataset, consisting of network logs, incorporates numeric and categorical data. Conversely, the second dataset contains email texts, with spam categorized as anomalies. For this email dataset, three feature representation techniques are utilized: count vectorizer, TF-IDF, and word embeddings, with each technique subjected to the algorithms mentioned above.
+
+The datasets are partitioned into training and test sets, maintaining a ratio of approximately 4:1. With a few exceptions, such as the local outlier factor, which does not create persistent models, the algorithms generate models trained on the training set and evaluated on the test set.
+
+All the algorithm implementations come from \textit{scikit-learn} library written in Python.
+
+Given that the data is labeled and balanced for supervised algorithms, the task aligns with binary classification. The algorithms are Gaussian Naive Bayes, logistic regression, \textit{k}-nearest neighbors, linear support vector, decision tree, random forest and voting classifier.
+
+The chosen unsupervised algorithms can be divided into two groups. One-class support vector machine, local outlier factor and isolation forest are algorithms used for anomaly detection. Two clustering algorithms were also chosen: \textit{k}-means and Gaussian mixture model. 
+
+Most of the time, the algorithms were run with default initial parameters. Parameters not explicitly described were selected based on a manual comparison of accuracy, precision, recall, and F1 score.
+
+\chapter{Network anomaly detection}
+\label{chapter:netlogs}
+\section{Dataset overview}
+The dataset is based on KDD-Cup '99 and contains the labeled list of network connections. It was used for The Third International Knowledge Discovery and Data Mining Tools Competition, in conjunction with KDD-99, The Fifth International Conference on Knowledge Discovery and Data Mining. The dataset contains 41 columns (\ref{appendix:netlogs-columns}), and the proportion of normal data to anomalies is roughly balanced, with 13449 normal connections and 11743 anomalous ones. The dataset does not contain any duplicate rows.
+
+All columns are numerical, except categorical \textit{protocol type}, \textit{service} and \textit{flag}. Figures \ref{fig:protocols} and \ref{fig:flags} show the distribution protocols and flags. Figure \ref{fig:correlations} shows only selected columns with strong correlations between them.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/protocol-distr.png}
+  \caption{Distribution of protocol types}
+  \label{fig:protocols}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/flag-distr.png}
+  \caption{Distribution of flags}
+  \label{fig:flags}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/correlations.png}
+  \caption{Columns with strong correlations}
+  \label{fig:correlations}
+\end{figure}
+\section{Preprocessing}
+Since the data has categorical features, their encoding of numerical values is needed. The encoding can be done using the LabelEncoder class from sklearn.preprocessing. 
+
+The columns from the figure \ref{fig:correlations} with the correlation 1:1 are dropped: 'num\textunderscore root', 'srv\textunderscore serror\textunderscore rate', 'srv\textunderscore rerror\textunderscore rate', 'dst\textunderscore host\textunderscore serror\textunderscore rate', 'dst\textunderscore host\textunderscore srv\textunderscore serror\textunderscore rate', 'dst\textunderscore host\textunderscore srv\textunderscore rerror\textunderscore rate'.
+
+Scaling is done using RobustScaler from the same library. This scaler was chosen since it is more robust for outliers.
+
+Since the dataset contains several strong positive and negative correlations, there was an attempt to use PCA from sklearn.decomposition with the parameter $ whiten = true $. However, the results still needed to be improved.
+
+\section{Supervised learning models}
+
+For most of the algorithms, the default parameters give the best results, with the exceptions below:
+\begin{itemize}
+    \item Logistic regression requires the $ max\textunderscore iter=8000 $ with the default 100. Otherwise, the algorithm cannot converge.
+    \item \textit{k}-nearest neighbors gives better results with $ algorithm='brute' $ which stands for brute-force search.
+    \item Since linear support vector requires input features to be in the range $ [0,1] $, the MinMaxScaler is used instead of RobustScaler.
+    \item Random forest gives better results with $ max\textunderscore depth = 50 $, which stands for the maximum depth of the tree.
+    \item For the voting classifier, logistic regression, \textit{k}-nearest neighbor, decision tree and random forest algorithms are used since they give the better results; the voting method is 'hard.'
+\end{itemize}
+
+\section{Unsupervised learning models}
+\label{sect:netlogsunsup}
+Generally, unsupervised algorithms provide less accurate results than supervised algorithms. 
+
+\subsection{One-class SVM}
+\label{subsect:netlogsocsvm}
+By its nature, one-class SVM is trained only on the normal data and then evaluated on the whole data. The configured parameters are $ kernel = 'poly' $, $ nu = 0.2 $ and $ gamma = 'scale' $.
+
+\subsection{Local outlier factor}
+\label{subsect:netlogslof}
+The local outlier factor algorithm cannot be trained on one data set and tested on another; the model is created for the whole data. The chosen parameters are $ n\textunderscore neighbors=3 $ and $ contamination=0.5 $, where the contamination is the expected percentage of anomalies in the data. The contamination is set to 0.5, reflecting an assumption that half of the data points are anomalies because the dataset is balanced.
+
+\subsection{Isolation forest}
+\label{subsect:netlogsif}
+For the isolation forest, the parameters $ n\textunderscore estimators=50 $, $ max\textunderscore samples='auto' $, $ contamination=0.5 $, $ max\textunderscore features = 0.5 $ are chosen.
+
+\subsection{\textit{k}-means}
+\label{subsect:netlogskmeans}
+Unlike the previous algorithms, \textit{k}-means is a clustering algorithm that is not used directly for anomaly detection. An anomaly can be identified as a point far from the nearest cluster center. The listing \ref{lst:netlogskmeans} shows the creation and use of the \textit{k}-means model.
+
+\end{markdown*}
+\begin{lstlisting}[caption={\textit{k}-means model}, label={lst:netlogskmeans}]
+from sklearn.cluster import KMeans
+from scipy.spatial.distance import cdist
+
+kmeans = KMeans(n_clusters=1)
+labels = kmeans.fit_predict(X_train)
+
+centroids = kmeans.cluster_centers_
+distances = cdist(X_train, centroids, 'euclidean')
+min_distances = distances[np.arange(len(distances)), labels]
+threshold = np.percentile(min_distances, 50)
+predictions = np.array([0 if d > threshold else 1 for d in min_distances])
+\end{lstlisting}
+\begin{markdown*}{hybrid, definitionLists, footnotes, inlineFootnotes, hashEnumerators, fencedCode, citations, citationNbsps, pipeTables, tableCaptions}
+
+\subsection{Gaussian mixture model}
+\label{subsect:netlogsgmm}
+The chosen parameters for Gaussian mixture model are $ n\textunderscore components = 4 $, $ covariance\textunderscore type = 'diag' $, $ random\textunderscore state = 42 $. Like \textit{k}-means, the Gaussian mixture model is also a clustering algorithm; the $ predict $ method predicts the labels for the clusters. In the listing \ref{lst:netlogsgmm}, the method $ score\textunderscore samples $ computes the log-likelihood for each point, and the threshold determines whether it is an anomaly. $ random\textunderscore state $ is set to reproduce the same output with the same parameters after multiple calls.
+
+\end{markdown*}
+\begin{lstlisting}[caption={Gaussian mixture model}, label={lst:netlogsgmm}]
+from sklearn.mixture import GaussianMixture
+
+GMM = GaussianMixture(n_components=4, covariance_type='diag', random_state=42)
+GMM.fit(X_train)
+scores = GMM.score_samples(X_train)
+threshold = np.percentile(scores, 50)
+predictions = np.array([0 if score < threshold else 1 for score in scores])
+\end{lstlisting}
+\begin{markdown*}{hybrid, definitionLists, footnotes, inlineFootnotes, hashEnumerators, fencedCode, citations, citationNbsps, pipeTables, tableCaptions}
+
+\section{Autoencoders} 
+
+(todo)
+
+
+\chapter{Spam detection}
+\label{chapter:emails}
+\section{Dataset overview}
+The dataset of spam and ham emails is a subset of Enron Corpus. The corpus consists of over 600000 real emails from Enron Corporation. The subset contains 10000 emails. The dataset is roughly balanced: 4954 hams and 4928 spams.
+
+Figures \ref{fig:ham} and \ref{fig:spam} show the word clouds of hams and spams; the most frequently used words are displayed in a larger font.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{images/ham-cloud.png}
+  \caption{Word cloud for hams}
+  \label{fig:ham}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{images/spam-cloud.png}
+  \caption{Word cloud for spams}
+  \label{fig:spam}
+\end{figure}
+
+\section{Preprocessing}
+Text preprocessing involves a series of more complex steps than those for numerical data. The following subsections show the particular steps.
+
+\subsection{Removing unneeded characters} \label{subsect:emailproc}
+The following unneeded characters and words are removed:
+\begin{itemize}
+    \item URL links and email addresses;
+    \item HTML tags, special characters and numbers;
+    \item multiple spaces;
+    \item too short (less than two characters) and too long (more than 17 characters) words;
+    \item stop words.
+\end{itemize}
+Subsequently, the text is converted to lowercase.
+
+\subsection{Lemmatization} \label{subsect:emailproc2}
+Initially, lemmatization was performed using the NLTK library; however, subsequent trials with SpaCy revealed it to be faster. The lemmatization process is illustrated on the listing \ref{lst:email_proc}.
+
+\end{markdown*}
+\begin{lstlisting}[caption={Lemmatization process}, label={lst:email_proc}]
+import spacy
+nlp = spacy.load("en_core_web_sm")
+custom_stopwords = ['subject', 'empty', 'email', 'mail', 'enron', 'linux', 'list', 'get', 'http', 'vince', 'com', 'org', 'www', 'etc', 'ect', 'edu', 'hou', 'would', 'need']
+# add custom stop words
+for word in custom_stopwords:
+    nlp.vocab[word].is_stop = True
+# lemmatization and removing stop words
+emails = [[token.lemma_ for token in nlp(text) if not token.is_stop] for text in emails]
+\end{lstlisting}
+\begin{markdown*}{hybrid, definitionLists, footnotes, inlineFootnotes, hashEnumerators, fencedCode, citations, citationNbsps, pipeTables, tableCaptions}
+
+\subsection{Converting to a vector of features} \label{subsect:emailproc3}
+The final preprocessing step is converting each email into a vector of features. For both count vectorizer and TF-IDF, the following parameters were chosen:
+\begin{itemize}
+    \item $ max\textunderscore features=25000 $, the length of each vector;
+    \item $ ngram\textunderscore range=(1,3) $, meaning that the model will consider also 2-grams and 3-grams;
+    \item $ min\textunderscore df=0.003 $ and $ max\textunderscore df=0.9$ , meaning that too rare and frequent words are ignored.
+\end{itemize}
+
+The third form of representation is word embeddings. Several libraries provide word embeddings, such as Word2Vec, GloVe, and SpaCy; the SpaCy was chosen. The listing \ref{lst:email_proc2} shows the word embedding creation.
+
+\end{markdown*}
+\begin{lstlisting}[caption={Creating of word embeddings}, label={lst:email_proc2}]
+nlp = spacy.blank("en")
+nlp.from_disk('/kaggle/input/en-core-web-lg/en_core_web_lg/en_core_web_lg-3.6.0')
+#  take a vector for each word from email, and find the average vector for a whole email.
+email_embeddings = []
+for email in emails:
+    spacy_doc = nlp(' '.join(email))
+    avg_vector = sum([token.vector for token in spacy_doc]) / len(email)
+    email_embeddings.append(avg_vector)
+\end{lstlisting}
+\begin{markdown*}{hybrid, definitionLists, footnotes, inlineFootnotes, hashEnumerators, fencedCode, citations, citationNbsps, pipeTables, tableCaptions}
+
+\section{Supervised learning models}
+
+All the models are run with the same parameters. Default parameters are used, except for logistic regression: $ max\textunderscore iter=2000 $ is used for convergence. For the voting classifier, the logistic regression, \textit{k}-nearest neighbor, decision tree and random forest algorithms are used; the voting method is 'hard.'
+
+\section{Unsupervised learning models}
+
+The algorithms are applied similarly to network logs in the section \ref{sect:netlogsunsup}. The particular parameters are:
+\begin{itemize}
+    \item One-class SVM was used with the parameters $ kernel = 'sigmoid' $, $ nu = 0.5 $ and $ gamma = 'auto' $;
+    \item Local outlier factor parameters are $ n\textunderscore neighbors=10 $ and $ contamination=0.5 $;
+    \item Isolation forest is giving slightly better results with $ n\textunderscore estimators=30 $, $ max\textunderscore samples=32 $, $ contamination=0.5 $;
+    \item The number of clusters for \textit{k}-means is 2;
+    \item The chosen parameters for Gaussian mixture model are $ n\textunderscore components = 1 $, $ covariance\textunderscore type = 'spherical' $, $ random\textunderscore state = 42 $.
+\end{itemize}
+
+Using PCA for network logs did not enhance the results. However, the results were slightly better when used on a text dataset. One of the parameters of PCA is $ n\textunderscore components $, which indicates a number of components. The number of components for the count vectorizer, TF-IDF, and word embedding representations is 1000, 1500 and 100. The explained variance is 93, 87 and 90 percent. 
+
+\section{Autoencoders}
+
+(todo)
+
+
+\chapter{Comparison and evaluation}
+This chapter is dedicated to the results of the algorithms and their comparison. The objective is to assess the performance of these algorithms under various conditions and data representations.
+
+The structure of the chapter is as follows: sections \ref{section:netlogsperf} and \ref{section:emailsperf} provide the overall results of the algorithms on the network logs dataset and emails dataset. Following this, the section \ref{section:emailsperf} also focuses on the results of different representations for email dataset: count vectorizer, TF-IDF and word embeddings.
+
+The results under the same conditions for the email dataset could be better for network logs, especially for unsupervised algorithms. However, two points should be taken into consideration:
+\begin{enumerate}
+    \item Text data is much more nuanced and multidimensional than numerical; it is much harder to preprocess the text data so that the algorithm can distinguish the text anomalies by itself. Section \ref{section:comppca} provides the outcomes for the email dataset for which the PCA algorithm was applied.
+    \item For the previous comparisons, both datasets contain only 5\% of anomalies. In the context of network logs, it is a reasonable proportion. However, in the real-world scenario, the proportion of spam is often much higher. Table \ref{table:emails-balanced} shows the outcomes of algorithms on the balanced email dataset, which is a more often real scenario.
+\end{enumerate}
+
+The last section \ref{section:crosscomparison} summarizes the key findings from the comparisons across both datasets.
+
+\section{Methodology of comparison}
+\label{section:comp-method}
+In this chapter, the performance is evaluated by the following metrics: accuracy, precision, recall, F1-score and fit time, described in the section \ref{section:metrics}. As stated in that section, recall, precision and F1-score are more critical for anomaly detection than accuracy. For network anomalies, recall may be more important than precision because the cost of missing an anomaly is usually higher than misidentifying a normal point as an anomaly. However, the cost of missing a ham email is usually high for spam and hams so that precision may be more critical.
+
+As stated in chapter \ref{chapter:impl}, all the algorithms are run on the datasets using the cross-validation technique over five folds, which provides more robustness to the results. The results in the tables are the mean of the results of the distinct folds. 
+
+(todo) move it somewhere:
+
+There are two scenarios where the unsupervised algorithms come in handy. In the first scenario, the dataset does not contain any anomalies, so the algorithms are trained on valid data and then used to identify the anomalies. These algorithms are one-class SVM, local outlier factor with \textit{novelty = True}, Gaussian mixture model and \textit{k}-means. In the other scenario, it is not known whether the dataset contains anomalies; sometimes, only the proportion is known. The local outlier factor with \textit{novelty = False} and isolation forest are more effective for this scenario.
+
+The same algorithms are applied across both datasets to compare their performance directly. 
+\section{Algorithm performance on network logs}
+\label{section:netlogsperf}
+
+Table \ref{table:netlogs-sup-test} shows the results of the algorithms on the network logs dataset. 
+
+From the table, one can see that mainly supervised algorithms perform well by all metrics. The worst algorithm by recall is Gaussian Naive Bayes, with a recall of 0.84. However, together with \textit{k}-nearest neighbors, they are the fastest algorithms in the group, with fitting times of 0.008 and 0.003 seconds, respectively. The slowest algorithm in the group is logistic regression, with a fitting time of 10.624 seconds. The voting classifier uses \textit{k}-nearest neighbors and logistic regression as estimators since they have the highest performance; it is also the slowest because of the fitting time of the logistic regression.
+
+In the group of unsupervised algorithms, one can see that the results are worse than for supervised algorithms, which is the most common scenario. The isolation forest and Gaussian mixture model show the best recall of 0.98, whereas one-class SVM and \textit{k}-means show the worst recall of 0.55 and 0.52 respectively. The local outlier factor has the shortest fitting time and good recall results. Also, the local outlier factor performs better for novelty detection than for outlier detection.
+
+\begin{table}[htbp]
+\centering
+\caption{The results for the network logs dataset}
+\small
+\rowcolors{2}{olive!25}{olive!10}  % Starting from the second row: odd rows, even rows
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\rowcolor{olive!50} % Header row color
+Model & Accuracy & Precision & Recall & F-1 score & Fit time(s) \\\ 
+\multicolumn{6}{|c|}{Supervised algorithms} \\\
+\hline
+Gaussian Naive Bayes & 0.85 & 0.99 & 0.84 & 0.91 & 0.008 \\\ 
+Logistic regression & 0.99 & 0.99 & 0.99 & 0.99 & 10.264 \\\
+\textit{k}-nearest neighbors & 0.99 & 0.99 & 0.99 & 0.99 & 0.003 \\\
+Linear support vector & 0.99 & 0.99 & 0.99 & 0.99 & 0.079 \\\
+Decision tree & 0.99 & 0.99 & 0.99 & 0.99 & 0.092 \\\
+Random forest & 0.99 & 0.99 & 0.99 & 0.99 & 1.182 \\\
+Voting classifier & 0.99 & 0.99 & 0.99 & 0.99 & 20.201 \\\
+\multicolumn{6}{|c|}{Unsupervised algorithms} \\\
+\hline
+One-class SVM  & 0.67 & 0.98 & 0.55 & 0.68 & 1 \\\ 
+Local outlier factor (novelty) & 0.79 & 0.98 & 0.89 & 0.93 & 0.38 \\\
+Local outlier factor (outliers) & 0.50 & 0.95 & 0.90 & 0.92 & 0.43 \\\
+Isolation forest & 0.84 & 0.98 & 0.98 & 0.98 & 1.04 \\\
+Gaussian mixture model & 0.85 & 0.98 & 0.98 & 0.98 & 1.40 \\\
+\textit{k}-means & 0.52 & 1 & 0.52 & 0.10 & 0.14 \\\
+\hline
+\end{tabular}
+\label{table:netlogs-sup-test}
+\end{table}
+
+\section{Algorithm performance on the emails dataset}
+\label{section:emailsperf}
+In this section, three email representations are compared. As stated in \ref{section:comp-method}, precision is more critical for emails than recall.
+
+\subsection{Count vectorizer results}
+
+Table \ref{table:emails-sup-unb-cv} shows the results for the count vectorizer representation.
+
+In the group of supervised algorithms, all the algorithms demonstrate high precision, with the lowest precision of 0.96 for the \textit{k}-nearest neighbors. The fitting time takes less than a second for Gaussian Naive Bayes, \textit{k}-nearest neighbors and linear support vector. Decision tree and random forest algorithms have the longest fitting time of 27.892 and 22.591 seconds, respectively. The voting classifier employs logistic regression and decision tree algorithms as estimators, thus having a long fitting time of 20.201 seconds and a precision of 0.98.
+
+Among unsupervised algorithms, isolation forest demonstrates the worst performance. Its precision is 0.8, but the recall of 0 means it identified no anomalies; the same holds for \textit{k}-means. The Gaussian mixture model is the best algorithm with the same precision and recall of 0.95. The local outlier factor has the fastest fitting time of approximately 2 seconds and high results of 0.94 for precision and 0.87-0.88 for recall.
+
+\begin{table}[htbp]
+\centering
+\caption{The results for emails dataset using count vectorizer}
+\small
+\rowcolors{2}{olive!25}{olive!10}  % Starting from the second row: odd rows, even rows
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\rowcolor{olive!50} % Header row color
+Model & Accuracy & Precision & Recall & F-1 score & Fit time(s) \\\ 
+\multicolumn{6}{|c|}{Supervised algorithms} \\\
+\hline
+Gaussian Naive Bayes & 0.97 & 0.97 & 0.99 & 0.98 & 0.459 \\\ 
+Logistic regression & 0.97 & 0.97 & 0.99 & 0.98 & 2.745 \\\
+\textit{k}-nearest neighbors & 0.85 & 0.96 & 0.87 & 0.91 & 0.102 \\\
+Linear support vector & 0.97 & 0.97 & 0.99 & 0.98 & 0.351 \\\ 
+Decision tree & 0.94 & 0.98 & 0.96 & 0.97 & 27.892 \\\
+Random forest & 0.97 & 0.97 & 0.99 & 0.98 & 22.591 \\\
+Voting classifier & 0.94 & 0.98 & 0.95 & 0.97 & 20.201 \\\
+\multicolumn{6}{|c|}{Unsupervised algorithms} \\\
+\hline
+One-class SVM  & 0.53 & 0.95 & 0.5 & 0.65 & 53.167 \\\ 
+Local outlier factor (novelty) & 0.45 & 0.94 & 0.87 & 0.91 & 2.055 \\\
+Local outlier factor (outliers) & 0.45 & 0.94 & 0.88 & 0.91 & 2.236 \\\
+Isolation forest & 0.49 & 0.8 & 0 & 0 & 9.757 \\\
+Gaussian mixture model & 0.53 & 0.95 & 0.95 & 0.954 & 6.389 \\\ 
+\textit{k}-means & 0.51 & 0.98 & 0.05 & 0.09 & 9.3 \\\
+\hline
+\end{tabular}
+\label{table:emails-sup-unb-cv}
+\end{table}
+
+\subsection{TF-IDF results}
+
+The results for the TF-IDF representation are demonstrated in table \ref{table:emails-sup-unb-tf}.
+
+Supervised algorithms show a high precision of 0.97-0.98. The recall is also higher than 0.96, except for \textit{k}-nearest neighbors with a recall of 0.76. Gaussian Naive Bayes, \textit{k}-nearest neighbors and linear support vector have a fitting time of less than a second; decision tree and random forest algorithms take more than 20 seconds for fitting.
+
+Between the unsupervised algorithms, isolation forest and \textit{k}-means do not recognize the anomalies, similar to count vectorizer representation. The Gaussian mixture model demonstrates the highest precision and recall, with almost the same results as the count vectorizer. The local outlier factor also has the fastest fitting time and high precision, but the recall of 0.77-0.78 is slightly lower than the recall for the count vectorizer.
+
+\begin{table}[htbp]
+\centering
+\caption{The results for emails dataset using TF-IDF}
+\small
+\rowcolors{2}{olive!25}{olive!10}  % Starting from the second row: odd rows, even rows
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\rowcolor{olive!50} % Header row color
+Model & Accuracy & Precision & Recall & F-1 score & Fit time(s) \\\ 
+\multicolumn{6}{|c|}{Supervised algorithms} \\\
+\hline
+Gaussian Naive Bayes & 0.97 & 0.97 & 0.99 & 0.98 & 0.458 \\\ 
+Logistic regression & 0.97 & 0.98 & 0.99 & 0.98 & 1.976 \\\
+\textit{k}-nearest neighbors & 0.75 & 0.97 & 0.76 & 0.83 & 0.099 \\\
+Linear support vector & 0.98 & 0.98 & 0.99 & 0.99 & 0.433 \\\ 
+Decision tree & 0.95 & 0.98 & 0.96 & 0.97 & 23.716 \\\
+Random forest & 0.97 & 0.97 & 0.99 & 0.98 & 26.863 \\\
+Voting classifier & 0.96 & 0.98 & 0.96 & 0.97 & 16.805 \\\
+\multicolumn{6}{|c|}{Unsupervised algorithms} \\\
+One-class SVM  & 0.41 & 0.93 & 0.48 & 0.63 & 52.44 \\\ 
+Local outlier factor (novelty) & 0.40 & 0.94 & 0.78 & 0.85 & 2.170 \\\
+Local outlier factor (outliers) & 0.42 & 0.94 & 0.77 & 0.84 & 2.037 \\\
+Isolation forest & 0.5 & 0.01 & 0.01 & 0.01 & 9.915 \\\
+Gaussian mixture model & 0.58 & 0.96 & 0.95 & 0.95 & 6.027 \\\
+\textit{k}-means & 0.51 & 0.97 & 0.05 & 0.09 & 13.744 \\\
+\hline
+\end{tabular}
+\label{table:emails-sup-unb-tf}
+\end{table}
+
+\subsection{Word embeddings results}
+
+The results of applying algorithms on the word embedding representation are shown in the table \ref{table:emails-sup-unb-we}.
+
+The first thing to notice is the fitting time: it is at most two seconds for most algorithms. For the supervised algorithms, the precision and recall are higher than 0.96 for both, except Gaussian Naive Bayes, with a recall of 0.89. The unsupervised algorithms also show high precision; however, only the Gaussian mixture model demonstrates a high recall of 0.95. 
+
+\begin{table}[htbp]
+\centering
+\caption{The results for emails dataset using word embeddings}
+\small
+\rowcolors{2}{olive!25}{olive!10}  % Starting from the second row: odd rows, even rows
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\rowcolor{olive!50} % Header row color
+Model & Accuracy & Precision & Recall & F-1 score & Fit time(s) \\\ 
+\multicolumn{6}{|c|}{Supervised algorithms} \\\
+\hline
+Gaussian Naive Bayes & 0.88 & 0.98 & 0.89 & 0.93 & 0.009 \\\ 
+Logistic regression & 0.97 & 0.98 & 0.98 & 0.98 & 0.406 \\\
+\textit{k}-nearest neighbors & 0.97 & 0.97 & 0.99 & 0.98 & 0.003 \\\
+Linear support vector & 0.97 & 0.98 & 0.99 & 0.98 & 1.768 \\\ 
+Decision tree & 0.94 & 0.97 & 0.97 & 0.97 & 2.554 \\\
+Random forest & 0.96 & 0.96 & 0.99 & 0.98 & 6.72 \\\
+Voting classifier & 0.95 & 0.98 & 0.96 & 0.97 & 2.925 \\\
+\multicolumn{6}{|c|}{Unsupervised algorithms} \\\
+\hline
+Model & Accuracy & Precision & Recall & F-1 score & Fit time(s) \\\ 
+One-class SVM  & 0.38 & 0.93 & 0.49 & 0.64 & 1.73 \\\ 
+Local outlier factor (novelty) & 0.37 & 0.89 & 0.20 & 0.32 & 0.515 \\\
+Local outlier factor (outliers) & 0.43 & 0.92 & 0.19 & 0.31 & 0.54 \\\
+Isolation forest & 0.42 & 0.91 & 0.22 & 0.35 & 0.259 \\\
+Gaussian mixture model & 0.51 & 0.95 & 0.95 & 0.95 & 0.73 \\\
+\textit{k}-means & 0.51 & 0.98 & 0.05 & 0.09 & 2.521 \\\
+\end{tabular}
+\label{table:emails-sup-unb-we}
+\end{table}
+
+\subsection{Comparison across representations}
+
+All the representations have almost the same good results for supervised algorithms. Among the unsupervised algorithms, the Gaussian mixture model demonstrates the highest precision and recall, approximately 0.95-0.97. Local outlier factor had good results for count vectorizer and TF-IDF.
+
+Word embedding representation takes the least time to fit; for the decision tree, random forest and one-class SVM, the time is 20 and 50 times less than for other representations. Despite the lower outcomes, this may be beneficial in production.
+
+\section{Impact of applying PCA}
+\label{section:comppca}
+
+As stated in the section \ref{section:pca}, PCA may not improve the results. In table \ref{table:emails-pca}, the results for all algorithms are shown on the email dataset. Generally, they do not differ much from the results without PCA. The most significant improvements are for the isolation forest algorithm; figure \ref{fig:if-pca} shows the differences in precision and recall.
+
+There can be many reasons why applying PCA improved the results of isolation forest. One may be that PCA reduces the noise, so the algorithm isolates the anomalies more effectively. Another reason may be that with fewer dimensions, the algorithm converges faster.
+ 
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{images/if-pca.png}
+  \caption{Results of isolation forest}
+  \label{fig:if-pca}
+\end{figure}
+
+\section{Comparison of algorithms across datasets}
+\label{section:crosscomparison}
+
+Generally, the results for algorithms on the networks dataset tend to be higher, and the fitting time is faster than for word embedding representation of emails dataset, the fastest among the three. 
+
+Among supervised algorithms, logistic regression with a fitting time 10.264 on the network dataset is an exception. Decision tree and Random forest are the slowest algorithms for the count vectorizer and TF-IDF. Gaussian Naive Bayes, \textit{k}-nearest neighbors and linear support vector tend to be fast on all datasets and representations. Despite that, Gaussian Naive Bayes generally gives all datasets the lowest precision and recall. On all datasets, \textit{k}-nearest neighbors algorithm has the fastest fitting time, but the linear support vector tends to have higher recall and precision.
+
+Comparing unsupervised algorithms, one-class SVM and \textit{k}-means show the lowest results. Isolation forest performs well on the network dataset but not the emails dataset. Local outlier factor algorithm tends to be faster and provides good results except for word embeddings. The Gaussian mixture model provides the best results on all datasets but has a slower fitting time of around 6 seconds for TF-IDF and count vectorizer.
+
+
+\chapter{Conclusion}
+
+\end{markdown*}
+{\sloppy\printbibliography[heading=bibintoc]}
+  \makeatletter\thesis@blocks@clear\makeatother
+  \phantomsection %% Print the index and insert it into the
+  \addcontentsline{toc}{chapter}{\indexname} %% table of contents.
+  \printindex
+
+\appendix %% Start the appendices.
+\chapter{An appendix}
+
+\section{List of columns for network logs dataset}
+\begin{spverbatim}
+BASIC FEATURES OF EACH NETWORK CONNECTION VECTOR
+Duration: Length of time duration of the connection
+Protocol_type: Protocol used in the connection
+Service: Destination network service used
+Flag: Status of the connection – Normal or Error
+Src_bytes: Number of data bytes transferred from source to destination in a single connection
+Dst_bytes: Number of data bytes transferred from destination to source in a single connection
+Land: if source and destination IP addresses and port numbers are equal, then this variable takes value 1, else 0
+Wrong_fragment: Total number of wrong fragments in this connection
+Urgent: Number of urgent packets in this connection. Urgent packets are packets with the urgent bit activated 
+
+CONTENT-RELATED FEATURES OF EACH NETWORK CONNECTION VECTOR
+Hot: Number of "hot" indicators in the content, such as entering a system directory, creating programs and executing programs
+Num_failed_logins: Count of failed login attempts
+Logged_in Login Status: 1 if successfully logged in; 0 otherwise
+Num_compromised: Number of compromised' ' conditions
+Root_shell: 1 if root shell is obtained; 0 otherwise
+Su_attempted: 1 if "su root'' command attempted or used; 0 otherwise
+Num_root: Number of root" accesses or number of operations performed as a root in the connection
+Num_file_creations: Number of file creation operations in the connection
+Num_shells: Number of shell prompts
+Num_access_files: Number of operations on access control files
+Num_outbound_cmds: Number of outbound commands in an FTP session
+Is_hot_login: 1 if the login belongs to the hot'' list i.e., root or admin; else 0
+Is_guest_login: 1 if the login is a guest, 0 otherwise 
+
+TIME-RELATED TRAFFIC FEATURES OF EACH NETWORK CONNECTION VECTOR
+Count: Number of connections to the same destination host as the current connection in the past two seconds
+Srv_count: Number of connections to the same service (port number) as the current connection in the past two seconds
+Serror_rate: The percentage of connections that have activated the flag (4) s0, s1, s2 or s3, among the connections aggregated in count (23)
+Srv_serror_rate: The percentage of connections that have activated the flag (4) s0, s1, s2 or s3, among the connections aggregated in srv_count (24)
+Rerror_rate: The percentage of connections that have activated the flag (4) REJ among the connections aggregated in count (23)
+Srv_rerror_rate: The percentage of connections that have activated the flag (4) REJ among the connections aggregated in srv_count (24)
+Same_srv_rate: The percentage of connections that were to the same service among the connections aggregated in count (23)
+Diff_srv_rate: The percentage of connections that were to different services among the connections aggregated in count (23)
+Srv_diffhost rate: The percentage of connections that were to different destination machines among the connections aggregated in srv_count (24) 
+
+HOST-BASED TRAFFIC FEATURES IN A NETWORK CONNECTION VECTOR
+Dst_host_count: Number of connections having the same destination host IP address
+Dst_hostsrv count: Number of connections having the same port number
+Dst_host_same srv_rate: The percentage of connections that were to the same service among the connections aggregated in dst_host_count (32)
+Dst_host_diff srv_rate: The percentage of connections that were to different services among the connections aggregated in dst_host_count (32)
+Dst_host_same src_port_rate: The percentage of connections that were to the same source port among the connections aggregated in dst_host_srv_count (33)
+Dst_host_srv diff_host_rate: The percentage of connections that were to different destination machines among the connections aggregated in dst_host_srv_count (33)
+Dst_host_serro r_rate: The percentage of connections that have activated the flag (4) s0, s1, s2 or s3, among the connections aggregated in dst_host_count (32)
+Dst_host_srv_s error_rate: The percent of connections that have activated the flag (4) s0, s1, s2 or s3, among the connections aggregated in dst_host_srv_count (33)
+Dst_host_rerro r_rate: The percentage of connections that have activated the flag (4) REJ among the connections aggregated in dst_host_count (32)
+Dst_host_srv_r error_rate: The percentage of connections that have activated the flag (4) REJ among the connections aggregated in dst_host_srv_count (33)
+\end{spverbatim}
+
+\begin{table}[htbp]
+\centering
+\caption{The results for emails dataset after using PCA}
+\small
+\rowcolors{2}{olive!25}{olive!10}  % Starting from the second row: odd rows, even rows
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\rowcolor{olive!50} % Header row color
+Model & Accuracy & Precision & Recall & F-1 score & Fit time(s) \\ 
+\multicolumn{6}{|c|}{Count vectorizer} \\
+\hline
+Gaussian Naive Bayes & 0.59 & 0.97 & 0.58 & 0.73 & 0.102 \\ 
+Logistic regression & 0.97 & 0.97 & 0.99 & 0.98 & 0.878 \\
+\textit{k}-nearest neighbors & 0.93 & 0.96 & 0.97 & 0.96 & 0.022 \\
+Linear support vector & 0.93 & 0.96 & 0.97 & 0.96 & 132.606 \\ 
+Decision tree & 0.95 & 0.97 & 0.97 & 0.97 & 15.5 \\
+Random forest & 0.95 & 0.95 & 0.99 & 0.97 & 19.368 \\
+Voting classifier & 0.96 & 0.98 & 0.97 & 0.98 & 16.384 \\
+\hline
+One-class SVM  & 0.49 & 0.95 & 0.49 & 0.65 & 14.301 \\
+Local outlier factor (novelty) & 0.44 & 0.94 & 0.87 & 0.90 & 0.836 \\
+Local outlier factor (outliers) & 0.44 & 0.94 & 0.87 & 0.90 & 0.85 \\
+Isolation forest & 0.52 & 0.96 & 0.18 & 0.31 & 2.31 \\
+Gaussian mixture model & 0.52 & 0.95 & 0.95 & 0.95 & 2.284 \\
+\textit{k}-means & 0.50 & 0.96 & 0.05 & 0.09 & 3.455 \\
+\multicolumn{6}{|c|}{TF-IDF} \\
+\hline
+Gaussian Naive Bayes & 0.91 & 0.96 & 0.94 & 0.95 & 0.149 \\
+Logistic regression & 0.97 & 0.97 & 0.99 & 0.98 & 0.584 \\
+\textit{k}-nearest neighbors & 0.95 & 0.95 & 0.99 & 0.97 & 0.029 \\
+Linear support vector & 0.93 & 0.95 & 0.98 & 0.96 & 162.923 \\
+Decision tree & 0.96 & 0.98 & 0.98 & 0.98 & 24.249 \\
+Random forest & 0.97 & 0.97 & 0.99 & 0.98 & 34.694 \\
+Voting classifier & 0.97 & 0.98 & 0.98 & 0.98 & 24.526 \\
+\hline
+One-class SVM  & 0.46 & 0.94 & 0.49 & 0.64 & 19.925 \\
+Local outlier factor (novelty) & 0.39 & 0.93 & 0.70 & 0.80 & 1.021 \\
+Local outlier factor (outliers) & 0.41 & 0.94 & 0.71 & 0.81 & 1.093 \\
+Isolation forest & 0.49 & 0.94 & 0.14 & 0.25 & 3.74 \\
+Gaussian mixture model & 0.57 & 0.95 & 0.95 & 0.95 & 3.692 \\
+\textit{k}-means & 0.51 & 0.98 & 0.05 & 0.09 & 5.723 \\
+\multicolumn{6}{|c|}{Word embeddings} \\
+\hline
+Gaussian Naive Bayes & 0.88 & 0.95 & 0.91 & 0.93 & 0.008 \\
+Logistic regression & 0.97 & 0.98 & 0.98 & 0.98 & 0.113 \\
+\textit{k}-nearest neighbors & 0.96 & 0.97 & 0.99 & 0.98 & 0.002 \\
+Linear support vector & 0.97 & 0.97 & 0.99 & 0.98 & 0.881 \\
+Decision tree & 0.93 & 0.97 & 0.95 & 0.96 & 0.825 \\
+Random forest & 0.95 & 0.95 & 1 & 0.97 & 4.465 \\
+Voting classifier & 0.94 & 0.98 & 0.95 & 0.97 & 1 \\
+\hline
+One-class SVM  & 0.40 & 0.93 & 0.50 & 0.65 & 0.984 \\
+Local outlier factor (novelty) & 0.39 & 0.89 & 0.17 & 0.28 & 0.426 \\
+Local outlier factor (outliers) & 0.46 & 0.93 & 0.17 & 0.29 & 0.485 \\
+Isolation forest & 0.49 & 0.94 & 0.18 & 0.31 & 0.221 \\
+Gaussian mixture model & 0.52 & 0.95 & 0.95 & 0.95 & 0.38 \\
+\textit{k}-means & 0.51 & 0.98 & 0.05 & 0.09 & 1.612 \\
+\end{tabular}
+\label{table:emails-pca}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{The results for the balanced emails dataset}
+\small
+\rowcolors{2}{olive!25}{olive!10}  % Starting from the second row: odd rows, even rows
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\rowcolor{olive!50} % Header row color
+Model & Accuracy & Precision & Recall & F-1 score & Fit time(s) \\
+\multicolumn{6}{|c|}{Count vectorizer} \\
+\hline
+Gaussian Naive Bayes & 0.86 & 0.96 & 0.74 & 0.84 & 1.28 \\
+Logistic regression & 0.96 & 0.96 & 0.97 & 0.96 & 9.15 \\
+\textit{k}-nearest neighbors & 0.81 & 0.74 & 0.97 & 0.84 & 0.243 \\
+Linear support vector & 0.96 & 0.95 & 0.97 & 0.96 & 0.805 \\
+Decision tree & 0.91 & 0.92 & 0.89 & 0.90 & 55.421 \\
+Random forest & 0.97 & 0.96 & 0.97 & 0.97 & 17.573 \\
+Voting classifier & 0.93 & 0.97 & 0.88 & 0.92 & 48.322 \\
+\hline
+One-class SVM  & 0.46 & 0.46 & 0.49 & 0.48 & 51.84 \\ 
+Local outlier factor (novelty) & 0.37 & 0.42 & 0.74 & 0.54 & 2.069 \\
+Local outlier factor (outliers) & 0.42 & 0.45 & 0.74 & 0.56 & 7.542 \\
+Isolation forest & 0.50 & 0.8 & 0.01 & 0.01 & 19.591 \\
+Gaussian mixture model & 0.54 & 0.54 & 0.54 & 0.54 & 6.906 \\
+\textit{k}-means & 0.54 & 0.54 & 0.54 & 0.54 & 6.472 \\
+\multicolumn{6}{|c|}{TF-IDF} \\
+\hline
+Gaussian Naive Bayes & 0.89 & 0.97 & 0.80 & 0.88 & 1.266 \\
+Logistic regression & 0.97 & 0.97 & 0.97 & 0.97 & 5.806 \\
+\textit{k}-nearest neighbors & 0.61 & 0.56 & 0.99 & 0.72 & 0.253 \\
+Linear support vector & 0.97 & 0.96 & 0.98 & 0.97 & 0.844 \\ 
+Decision tree & 0.91 & 0.91 & 0.91 & 0.91 & 56.142 \\
+Random forest & 0.96 & 0.96 & 0.97 & 0.96 & 20.659 \\
+Voting classifier & 0.94 & 0.98 & 0.90 & 0.94 & 46.631 \\
+\hline
+One-class SVM  & 0.51 & 0.51 & 0.50 & 0.50 & 52.664 \\ 
+Local outlier factor (novelty) & 0.39 & 0.44 & 0.79 & 0.56 & 2.073 \\
+Local outlier factor (outliers) & 0.45 & 0.47 & 0.79 & 0.59 & 7.493 \\
+Isolation forest & 0.50 & 0.2 & 0.01 & 0.01 & 19.877 \\
+Gaussian mixture model & 0.48 & 0.48 & 0.48 & 0.48 & 2.479 \\
+\textit{k}-means & 0.49 & 0.49 & 0.49 & 0.49 & 8.238 \\
+\multicolumn{6}{|c|}{Word embeddings} \\
+\hline
+Gaussian Naive Bayes & 0.80 & 0.84 & 0.75 & 0.79 & 0.027 \\ 
+Logistic regression & 0.95 & 0.94 & 0.95 & 0.95 & 2.384 \\
+\textit{k}-nearest neighbors & 0.93 & 0.92 & 0.94 & 0.93 & 0.006 \\
+Linear support vector & 0.95 & 0.94 & 0.96 & 0.95 & 9.24 \\
+Decision tree & 0.86 & 0.85 & 0.87 & 0.86 & 3.849 \\
+Random forest & 0.94 & 0.95 & 0.94 & 0.94 & 11.661 \\
+Voting classifier & 0.91 & 0.97 & 0.84 & 0.90 & 4.786 \\
+\hline
+One-class SVM  & 0.45 & 0.45 & 0.50 & 0.47 & 1.646 \\ 
+Local outlier factor (novelty) & 0.24 & 0.25 & 0.26 & 0.25 & 0.498 \\
+Local outlier factor (outliers) & 0.49 & 0.48 & 0.24 & 0.32 & 1.837 \\
+Isolation forest & 0.52 & 0.55 & 0.22 & 0.31 & 0.443 \\
+Gaussian mixture model & 0.54 & 0.55 & 0.54 & 0.55 & 0.757 \\
+\textit{k}-means & 0.58 & 0.59 & 0.58 & 0.58 & 2.022 \\
+\end{tabular}
+\label{table:emails-balanced}
+\end{table}
+
+\end{document}
